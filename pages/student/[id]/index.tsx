@@ -12,7 +12,7 @@ const StudentNew = () => {
   const router = useRouter()
   const query = router.query;
   const studentId = query.id;
-  const [student, setStudent] = useState(undefined);
+  const [student, setStudent] = useState({});
 
   useEffect(() => {
     if (!!studentId) {

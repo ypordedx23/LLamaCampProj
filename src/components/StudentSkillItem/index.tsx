@@ -1,5 +1,7 @@
 import styles from "./styles.module.css";
 import React, { useEffect, useState } from "react";
+import { Button, IconButton, TextField, Tooltip } from "@mui/material";
+import { Delete } from "@mui/icons-material";
 
 interface Props {
   arrayKey: string
@@ -13,7 +15,7 @@ const StudentSkillItem = (props: Props) => {
   const { onChange, disabled, onDelete, arrayKey } = props;
   const [newSkill, setNewSkill] = useState("")
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
     let values = props.list ?? []
     values[index] = e.target.value;
     onChange(values, arrayKey)
@@ -38,19 +40,21 @@ const StudentSkillItem = (props: Props) => {
       <div
         style={{ display: "flex", marginBottom: 10 }}
       >
-        <input
+        <TextField
           value={newSkill}
           disabled={disabled}
           onChange={(e) => setNewSkill(e.target.value)}
           placeholder="Enter new skill..."
         />
-        <button
-          style={{ marginLeft: 10 }}
-          type="button"
-          onClick={() => handleAdd()}
-        >
-          Agregar
-        </button>
+        <div>
+          <Button
+            style={{ marginLeft: 10 }}
+            type="button"
+            onClick={() => handleAdd()}
+          >
+            Agregar
+          </Button>
+        </div>
       </div>
       {
         props.list?.map((skill, index) => (
@@ -58,18 +62,21 @@ const StudentSkillItem = (props: Props) => {
             key={index + arrayKey}
             style={{ display: "flex" }}
           >
-            <input
+            <TextField
               value={skill}
               disabled={disabled}
               onChange={(e) => handleChange(e, index)}
             />
-            <button
+            <IconButton
               style={{ marginLeft: 10 }}
               type="button"
               onClick={() => onDelete(index, arrayKey)}
+              size="small"
             >
-              Borrar
-            </button>
+              <Tooltip arrow title="Delete">
+                <Delete fontSize="small" />
+              </Tooltip>
+            </IconButton>
           </div>
         ))
       }

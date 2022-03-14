@@ -1,31 +1,15 @@
+import { Button, TextField } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Config from "../../config";
 import
 StudentSkillItem from "../StudentSkillItem";
+import { IStudent } from "../types/student";
 
 type StudentFormProp = {
   student?: any,
   isNew?: boolean,
 }
-
-export interface IStudent {
-  created_at: Date;
-  soft_skills: string[];
-  status: string;
-  picture: string;
-  work_experience: string[];
-  updated_at: Date;
-  last_name: string;
-  years_experience: number;
-  tech_skills: string[];
-  first_name: string;
-  observations: string;
-  description: string;
-  id: string;
-  age: number;
-}
-
 
 const StudentForm = (props: StudentFormProp) => {
   const studentId = props?.student?.id;
@@ -100,7 +84,7 @@ const StudentForm = (props: StudentFormProp) => {
           setLoading(false);
         });
     } else {
-      console.log(JSON.stringify(student) );
+      console.log(JSON.stringify(student));
       axios
         .put(`${Config.studentsApi}/${student.id}`, student)
         .then((response) => {
@@ -121,25 +105,28 @@ const StudentForm = (props: StudentFormProp) => {
       {
         loading
           ? <h2>cargando..</h2>
-          : <form>
-            <label htmlFor="fname">First name:</label><br />
-            <input
+          : <form style={{ paddingLeft: 20, paddingBottom: 40 }}>
+            {/* <label htmlFor="fname">First name:</label><br /> */}
+            <TextField
               type="text"
               id="first_name"
               name="first_name"
               value={student?.first_name ?? ""}
               onChange={handleInputsValues}
               disabled={loading}
+              label="First name"
             />
-            <br /><br />
-            <label htmlFor="lname">Last name:</label><br />
-            <input
+            <br />
+            {/* <label htmlFor="lname">Last name:</label> */}
+            <br />
+            <TextField
               type="text"
               id="last_name"
               name="last_name"
               value={student?.last_name ?? ""}
               onChange={handleInputsValues}
               disabled={loading}
+              label="Last name"
             />
             <br /><br />
             <div>
@@ -150,7 +137,7 @@ const StudentForm = (props: StudentFormProp) => {
                 onChange={handleFileUpload}
                 disabled={loading} />
             </div>
-            <br /><br />
+            <br />
             <div>
               <StudentSkillItem
                 arrayKey="soft_skills"
@@ -208,14 +195,22 @@ const StudentForm = (props: StudentFormProp) => {
                 }}
               />
             </div>
-            <div>
-              <input
+            <div style={{ paddingTop: 20 }}>
+              <Button
                 type="submit"
-                value="Submit"
                 disabled={loading}
                 onClick={handleSaveStudent}
-              />
-              <a href="/">Go to Students List</a>
+              >
+                Submit
+              </Button>
+              <a href="/">
+                <Button
+                  sx={{ mx: 2 }}
+                  variant="outlined"
+                >
+                  Go to Students List
+                </Button>
+              </a>
               {
                 !!error && <span>{error}</span>
               }

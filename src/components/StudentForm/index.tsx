@@ -145,7 +145,7 @@ const StudentForm = (props: StudentFormProp) => {
             paddingBottom: 40
           }}>
             <div style={{
-              textAlign: "-webkit-center"
+              textAlign: "center"
             }}>
               {!isNew && < img
                 width={90}

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Config from "../../config";
 import
 StudentSkillItem from "../StudentSkillItem";
@@ -9,15 +9,34 @@ type StudentFormProp = {
   isNew?: boolean,
 }
 
+export interface IStudent {
+  created_at: Date;
+  soft_skills: string[];
+  status: string;
+  picture: string;
+  work_experience: string[];
+  updated_at: Date;
+  last_name: string;
+  years_experience: number;
+  tech_skills: string[];
+  first_name: string;
+  observations: string;
+  description: string;
+  id: string;
+  age: number;
+}
+
+
 const StudentForm = (props: StudentFormProp) => {
   const studentId = props?.student?.id;
-  const [student, setStudent] = useState(props.student);
+  const [student, setStudent] = useState<IStudent>(props.student);
   const [isNew, setIsNew] = useState(props?.isNew ?? false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    console.log(JSON.stringify(props.student))
     setStudent(props.student);
   }, [studentId]);
 
@@ -71,7 +90,7 @@ const StudentForm = (props: StudentFormProp) => {
             first_name: "",
             last_name: "",
             picture: ""
-          })
+          } as IStudent)
           console.log("Create user response", response.data);
         })
         .catch((error) => {
@@ -81,7 +100,7 @@ const StudentForm = (props: StudentFormProp) => {
           setLoading(false);
         });
     } else {
-      console.log("Updating student info...", student);
+      console.log(JSON.stringify(student) );
       axios
         .put(`${Config.studentsApi}/${student.id}`, student)
         .then((response) => {
@@ -97,77 +116,116 @@ const StudentForm = (props: StudentFormProp) => {
     }
   }
 
-  const RenderForm = () => {
-    console.log(student)
-    return (
-      <form>
-        <label htmlFor="fname">First name:</label><br />
-        <input
-          type="text"
-          id="first_name"
-          name="first_name"
-          value={student?.first_name ?? ""}
-          onChange={handleInputsValues}
-          disabled={loading}
-        />
-        <br /><br />
-        <label htmlFor="lname">Last name:</label><br />
-        <input
-          type="text"
-          id="last_name"
-          name="last_name"
-          value={student?.last_name ?? ""}
-          onChange={handleInputsValues}
-          disabled={loading}
-        />
-        <br /><br />
-        <div>
-          <input
-            type="file"
-            id="picture"
-            name="picture"
-            onChange={handleFileUpload}
-            disabled={loading} />
-        </div>
-        <br /><br />
-        <div>
-          <StudentSkillItem
-            name="soft_skills"
-            id="soft_skills"
-            soft_skills={student?.soft_skills}
-            disabled={loading}
-            onChange={handleInputsValues}
-          />
-        </div>
-        <div>
-          <input
-            type="submit"
-            value="Submit"
-            disabled={loading}
-            onClick={handleSaveStudent}
-          />
-          <a href="/">Go to Students List</a>
-          {
-            !!error && <span>{error}</span>
-          }
-          {
-            !!message && <span>{message}</span>
-          }
-        </div>
-      </form>
-    );
-  }
-
   return (
-    <>
+    <React.Fragment>
       {
-        loading && <h1>Loading...</h1>
+        loading
+          ? <h2>cargando..</h2>
+          : <form>
+            <label htmlFor="fname">First name:</label><br />
+            <input
+              type="text"
+              id="first_name"
+              name="first_name"
+              value={student?.first_name ?? ""}
+              onChange={handleInputsValues}
+              disabled={loading}
+            />
+            <br /><br />
+            <label htmlFor="lname">Last name:</label><br />
+            <input
+              type="text"
+              id="last_name"
+              name="last_name"
+              value={student?.last_name ?? ""}
+              onChange={handleInputsValues}
+              disabled={loading}
+            />
+            <br /><br />
+            <div>
+              <input
+                type="file"
+                id="picture"
+                name="picture"
+                onChange={handleFileUpload}
+                disabled={loading} />
+            </div>
+            <br /><br />
+            <div>
+              <StudentSkillItem
+                arrayKey="soft_skills"
+                list={student?.soft_skills}
+                disabled={loading}
+                onChange={(values, key) => {
+                  setStudent({
+                    ...student,
+                    [key]: values
+                  })
+                }}
+                onDelete={(index, key) => {
+                  setStudent({
+                    ...student,
+                    [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
+                  })
+                }}
+              />
+            </div>
+            <div>
+              <StudentSkillItem
+                arrayKey="tech_skills"
+                list={student?.tech_skills}
+                disabled={loading}
+                onChange={(values, key) => {
+                  setStudent({
+                    ...student,
+                    [key]: values
+                  })
+                }}
+                onDelete={(index, key) => {
+                  setStudent({
+                    ...student,
+                    [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
+                  })
+                }}
+              />
+            </div>
+            <div>
+              <StudentSkillItem
+                arrayKey="work_experience"
+                list={student?.work_experience}
+                disabled={loading}
+                onChange={(values, key) => {
+                  setStudent({
+                    ...student,
+                    [key]: values
+                  })
+                }}
+                onDelete={(index, key) => {
+                  setStudent({
+                    ...student,
+                    [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
+                  })
+                }}
+              />
+            </div>
+            <div>
+              <input
+                type="submit"
+                value="Submit"
+                disabled={loading}
+                onClick={handleSaveStudent}
+              />
+              <a href="/">Go to Students List</a>
+              {
+                !!error && <span>{error}</span>
+              }
+              {
+                !!message && <span>{message}</span>
+              }
+            </div>
+          </form>
       }
-
-      {
-        <RenderForm/>
-      }
-    </>
+    </React.Fragment>
   );
 }
 

@@ -14,6 +14,7 @@ const StudentsList = () => {
       .get(Config.studentsApi)
       .then((response) => {
         setStudents(response.data);
+        console.log(response.data);
       })
       .catch((error) => {
         console.error("There was an error getting students from API");

@@ -1,6 +1,8 @@
 import axios from "axios";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Config from "../../config";
+import
+StudentSkillItem from "../StudentSkillItem";
 
 type StudentFormProp = {
   student?: any,
@@ -20,9 +22,31 @@ const StudentForm = (props: StudentFormProp) => {
   }, [studentId]);
 
   const handleInputsValues = (event: any) => {
-    const {name, value} = event.target;
-    setStudent({...student, [name]: value});
+    const { name, value, files } = event.target;
+    setStudent({ ...student, [name]: value });
   }
+
+  const handleFileUpload = async (event: any) => {
+    const file = event.target.files[0];
+    const base64 = await convertBase64(file);
+    const { name } = event.target;
+    setStudent({ ...student, [name]: base64 });
+  }
+
+  const convertBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
   const handleSetMessage = (message: string) => {
     setMessage(message);
@@ -46,6 +70,7 @@ const StudentForm = (props: StudentFormProp) => {
             id: "",
             first_name: "",
             last_name: "",
+            picture: ""
           })
           console.log("Create user response", response.data);
         })
@@ -72,10 +97,11 @@ const StudentForm = (props: StudentFormProp) => {
     }
   }
 
-  const renderForm = () => {
+  const RenderForm = () => {
+    console.log(student)
     return (
       <form>
-        <label htmlFor="fname">First name:</label><br/>
+        <label htmlFor="fname">First name:</label><br />
         <input
           type="text"
           id="first_name"
@@ -84,8 +110,8 @@ const StudentForm = (props: StudentFormProp) => {
           onChange={handleInputsValues}
           disabled={loading}
         />
-        <br/><br/>
-        <label htmlFor="lname">Last name:</label><br/>
+        <br /><br />
+        <label htmlFor="lname">Last name:</label><br />
         <input
           type="text"
           id="last_name"
@@ -94,7 +120,25 @@ const StudentForm = (props: StudentFormProp) => {
           onChange={handleInputsValues}
           disabled={loading}
         />
-        <br/><br/>
+        <br /><br />
+        <div>
+          <input
+            type="file"
+            id="picture"
+            name="picture"
+            onChange={handleFileUpload}
+            disabled={loading} />
+        </div>
+        <br /><br />
+        <div>
+          <StudentSkillItem
+            name="soft_skills"
+            id="soft_skills"
+            soft_skills={student?.soft_skills}
+            disabled={loading}
+            onChange={handleInputsValues}
+          />
+        </div>
         <div>
           <input
             type="submit"
@@ -121,7 +165,7 @@ const StudentForm = (props: StudentFormProp) => {
       }
 
       {
-        !loading && renderForm()
+        <RenderForm/>
       }
     </>
   );

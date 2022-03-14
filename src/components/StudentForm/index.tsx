@@ -5,23 +5,39 @@ import Config from "../../config";
 import
 StudentSkillItem from "../StudentSkillItem";
 import { IStudent } from "../types/student";
+import Divider from '@mui/material/Divider';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import { styled } from '@mui/material/styles';
+import MessageModal from "../MesaggeModal";
+import Box from '@mui/material/Box';
+
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  color: theme.palette.text.secondary,
+}));
 
 type StudentFormProp = {
   student?: any,
   isNew?: boolean,
+  loading?: boolean
 }
 
 const StudentForm = (props: StudentFormProp) => {
   const studentId = props?.student?.id;
-  const [student, setStudent] = useState<IStudent>(props.student);
+  const [fileName, setFileName] = useState(props?.student?.picture)
+  const [student, setStudent] = useState<IStudent>(props?.student);
   const [isNew, setIsNew] = useState(props?.isNew ?? false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(props?.loading ?? true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    console.log(JSON.stringify(props.student))
     setStudent(props.student);
+    setLoading(false);
   }, [studentId]);
 
   const handleInputsValues = (event: any) => {
@@ -59,10 +75,29 @@ const StudentForm = (props: StudentFormProp) => {
     }, 3000);
   }
 
+  const handleDeleteStudent = (event: any) => {
+    event.preventDefault();
+    setLoading(true);
+    student.student_status = "inactive";
+    console.log("Deleting a student...", student);
+    console.log(JSON.stringify(student))
+    axios
+      .put(`${Config.studentsApi}/${student.id}`, student)
+      .then((response) => {
+        handleSetMessage("User deleted!");
+        console.log("Delete user response", response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error updating the student", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
   const handleSaveStudent = (event: any) => {
     event.preventDefault();
     setLoading(true);
-
     if (isNew) {
       console.log("Creating a new student...", student);
       axios
@@ -84,7 +119,8 @@ const StudentForm = (props: StudentFormProp) => {
           setLoading(false);
         });
     } else {
-      console.log(JSON.stringify(student));
+      console.log("Updating student...", student);
+      //console.log(JSON.stringify(student));
       axios
         .put(`${Config.studentsApi}/${student.id}`, student)
         .then((response) => {
@@ -104,118 +140,272 @@ const StudentForm = (props: StudentFormProp) => {
     <React.Fragment>
       {
         loading
-          ? <h2>cargando..</h2>
-          : <form style={{ paddingLeft: 20, paddingBottom: 40 }}>
-            {/* <label htmlFor="fname">First name:</label><br /> */}
-            <TextField
-              type="text"
-              id="first_name"
-              name="first_name"
-              value={student?.first_name ?? ""}
-              onChange={handleInputsValues}
-              disabled={loading}
-              label="First name"
-            />
-            <br />
-            {/* <label htmlFor="lname">Last name:</label> */}
-            <br />
-            <TextField
-              type="text"
-              id="last_name"
-              name="last_name"
-              value={student?.last_name ?? ""}
-              onChange={handleInputsValues}
-              disabled={loading}
-              label="Last name"
-            />
-            <br /><br />
-            <div>
-              <input
-                type="file"
-                id="picture"
-                name="picture"
-                onChange={handleFileUpload}
-                disabled={loading} />
-            </div>
-            <br />
-            <div>
-              <StudentSkillItem
-                arrayKey="soft_skills"
-                list={student?.soft_skills}
-                disabled={loading}
-                onChange={(values, key) => {
-                  setStudent({
-                    ...student,
-                    [key]: values
-                  })
+          ? <h2>Loading..</h2>
+          : <form style={{
+            paddingBottom: 40
+          }}>
+            <div style={{
+              textAlign: "-webkit-center"
+            }}>
+              {!isNew && < img
+                width={90}
+                height={90}
+                style={{
+                  borderRadius: "100vw",
+                  objectFit: "cover"
                 }}
-                onDelete={(index, key) => {
-                  setStudent({
-                    ...student,
-                    [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
-                  })
+                src={student.picture}
+              />}
+              {isNew && < img
+                width={90}
+                height={90}
+                style={{
+                  borderRadius: "100vw",
+                  objectFit: "cover"
                 }}
-              />
-            </div>
-            <div>
-              <StudentSkillItem
-                arrayKey="tech_skills"
-                list={student?.tech_skills}
-                disabled={loading}
-                onChange={(values, key) => {
-                  setStudent({
-                    ...student,
-                    [key]: values
-                  })
-                }}
-                onDelete={(index, key) => {
-                  setStudent({
-                    ...student,
-                    [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
-                  })
-                }}
-              />
-            </div>
-            <div>
-              <StudentSkillItem
-                arrayKey="work_experience"
-                list={student?.work_experience}
-                disabled={loading}
-                onChange={(values, key) => {
-                  setStudent({
-                    ...student,
-                    [key]: values
-                  })
-                }}
-                onDelete={(index, key) => {
-                  setStudent({
-                    ...student,
-                    [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
-                  })
-                }}
-              />
-            </div>
-            <div style={{ paddingTop: 20 }}>
+                src="https://students-static.s3.us-east-2.amazonaws.com/assets/image-default.png"
+              />}
+              <br />
               <Button
-                type="submit"
-                disabled={loading}
-                onClick={handleSaveStudent}
+                variant="contained"
+                component="label"
               >
-                Submit
+                Upload Photo
+                <input
+                  type="file"
+                  id="picture"
+                  name="picture"
+                  onChange={handleFileUpload}
+                  disabled={loading}
+                  hidden />
               </Button>
+            </div>
+            <br />
+            <Stack
+              direction="row"
+              justifyContent="space-evenly"
+              alignItems="center"
+              spacing={2}
+              divider={<Divider orientation="vertical" flexItem />}
+            >
+              <Item style={{
+                height: "60vh",
+                maxHeight: "60vh"
+              }}>
+                <TextField
+                  type="text"
+                  id="id"
+                  name="id"
+                  value={student?.id ?? ""}
+                  onChange={handleInputsValues}
+                  disabled={true}
+                  label="_ID"
+                />
+                <br /><br />
+                <div>
+                  <TextField
+                    type="Text"
+                    id="student_status"
+                    name="student_status"
+                    onChange={handleInputsValues}
+                    value={student?.student_status ?? ""}
+                    disabled={true}
+                    label="Student Status" />
+                </div>
+                <br />
+                <TextField
+                  type="text"
+                  id="first_name"
+                  name="first_name"
+                  required 
+                  value={student?.first_name ?? ""}
+                  onChange={handleInputsValues}
+                  disabled={loading}
+                  label="First name"
+                />
+                <br /><br />
+                <TextField
+                  type="text"
+                  id="last_name"
+                  name="last_name"
+                  required 
+                  value={student?.last_name ?? ""}
+                  onChange={handleInputsValues}
+                  disabled={loading}
+                  label="Last name"
+                />
+                <br /><br />
+                <div>
+                  <TextField
+                    type="number"
+                    id="age"
+                    name="age"
+                    required 
+                    value={student?.age ?? 0}
+                    onChange={handleInputsValues}
+                    disabled={loading}
+                    label="Age" />
+                </div>
+                <br />
+                <div>
+                  <TextField
+                    type="number"
+                    id="years_experience"
+                    name="years_experience"
+                    required 
+                    value={student?.years_experience ?? 0}
+                    onChange={handleInputsValues}
+                    disabled={loading}
+                    label="Years of Experience" />
+                </div>
+                <br />
+                <div>
+                  <TextField
+                    type="Text"
+                    id="description"
+                    name="description"
+                    required 
+                    onChange={handleInputsValues}
+                    value={student?.description ?? ""}
+                    disabled={loading}
+                    label="Description" />
+                </div>
+                <br />
+                <div>
+                  <TextField
+                    type="Text"
+                    id="observations"
+                    name="observations"
+                    required 
+                    onChange={handleInputsValues}
+                    value={student?.observations ?? ""}
+                    disabled={loading}
+                    label="Observations" />
+                </div>
+              </Item>
+              <Item style={{
+                height: "60vh",
+                maxHeight: "60vh"
+              }}>
+
+                <div>
+                  <StudentSkillItem
+                    arrayKey="soft_skills"
+                    list={student?.soft_skills}
+                    disabled={loading}
+                    onChange={(values, key) => {
+                      setStudent({
+                        ...student,
+                        [key]: values
+                      })
+                    }}
+                    onDelete={(index, key) => {
+                      setStudent({
+                        ...student,
+                        [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
+                      })
+                    }}
+                  />
+                </div>
+              </Item>
+              <Item style={{
+                height: "60vh",
+                maxHeight: "60vh"
+              }}>
+                <div>
+                  <StudentSkillItem
+                    arrayKey="tech_skills"
+                    list={student?.tech_skills}
+                    disabled={loading}
+                    onChange={(values, key) => {
+                      setStudent({
+                        ...student,
+                        [key]: values
+                      })
+                    }}
+                    onDelete={(index, key) => {
+                      setStudent({
+                        ...student,
+                        [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
+                      })
+                    }}
+                  />
+                </div>
+
+              </Item>
+              <Item style={{
+                height: "60vh",
+                maxHeight: "60vh"
+              }}>
+                <div>
+                  <StudentSkillItem
+                    arrayKey="work_experience"
+                    list={student?.work_experience}
+                    disabled={loading}
+                    onChange={(values, key) => {
+                      setStudent({
+                        ...student,
+                        [key]: values
+                      })
+                    }}
+                    onDelete={(index, key) => {
+                      setStudent({
+                        ...student,
+                        [key]: (student[key as keyof IStudent] as string[]).filter((_, i) => i !== index)
+                      })
+                    }}
+                  />
+                </div>
+
+              </Item>
+            </Stack>
+            <div style={{ paddingTop: 20 }}>
               <a href="/">
                 <Button
                   sx={{ mx: 2 }}
                   variant="outlined"
                 >
-                  Go to Students List
+                  STUDENTS LIST
                 </Button>
               </a>
+              {!!isNew && <Button
+                type="submit"
+                disabled={loading}
+                onClick={handleSaveStudent}
+              >
+                SUBMIT
+              </Button>}
               {
-                !!error && <span>{error}</span>
+                !isNew && <Button
+                  type="submit"
+                  disabled={loading}
+                  onClick={handleSaveStudent}
+                >
+                  UPDATE
+                </Button>
               }
               {
-                !!message && <span>{message}</span>
+                !isNew && <Button
+                  type="submit"
+                  disabled={loading}
+                  onClick={handleDeleteStudent}
+                >
+                  DELETE
+                </Button>
+              }
+
+
+              {
+                !!error && <MessageModal
+                  modal_message={error}
+                  open={true}
+                />
+              }
+              {
+                !!message && <MessageModal
+                  modal_message={message}
+                  open={true}
+                />
               }
             </div>
           </form>

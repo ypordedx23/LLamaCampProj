@@ -10,7 +10,7 @@ const StudentItem = (props: Props) => {
   const student = props.student;
   return (
     <Paper
-      sx={{ mx: 1, width: '80%', maxWidth: '80%' }}
+      sx={{ mx: 1, width: '100vh', maxWidth: '100vh' }}
     >
       <a
         href={`/student/${student.id}`}
@@ -22,8 +22,8 @@ const StudentItem = (props: Props) => {
         }}
       >
         <img
-          width={90}
-          height={90}
+          width={100}
+          height={100}
           style={{
             borderRadius: "100vw",
             objectFit: "cover"

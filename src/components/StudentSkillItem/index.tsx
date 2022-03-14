@@ -2,6 +2,7 @@ import styles from "./styles.module.css";
 import React, { useEffect, useState } from "react";
 import { Button, IconButton, TextField, Tooltip } from "@mui/material";
 import { Delete } from "@mui/icons-material";
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 
 interface Props {
   arrayKey: string
@@ -43,6 +44,7 @@ const StudentSkillItem = (props: Props) => {
         <TextField
           value={newSkill}
           disabled={disabled}
+          required 
           onChange={(e) => setNewSkill(e.target.value)}
           placeholder="Enter new skill..."
         />
@@ -52,7 +54,7 @@ const StudentSkillItem = (props: Props) => {
             type="button"
             onClick={() => handleAdd()}
           >
-            Agregar
+            ADD
           </Button>
         </div>
       </div>
@@ -60,11 +62,24 @@ const StudentSkillItem = (props: Props) => {
         props.list?.map((skill, index) => (
           <div
             key={index + arrayKey}
-            style={{ display: "flex" }}
+            style={{
+              display: "flex",
+              marginLeft: '2em'
+            }}
           >
+            <IconButton
+              type="button"
+              size="small"
+            >
+              <Tooltip arrow title="item">
+                <DoubleArrowIcon fontSize="small" />
+              </Tooltip>
+            </IconButton>
+
             <TextField
               value={skill}
               disabled={disabled}
+              required 
               onChange={(e) => handleChange(e, index)}
             />
             <IconButton

@@ -1,7 +1,7 @@
 export interface IStudent {
     created_at: Date;
     soft_skills: string[];
-    status: string;
+    student_status: string;
     picture: string;
     work_experience: string[];
     updated_at: Date;

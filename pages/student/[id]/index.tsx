@@ -29,7 +29,7 @@ const StudentNew = () => {
 
   return (
     <>
-      <h1>Updating student info</h1>
+      <h1>Update Student Info</h1>
       <StudentForm
         student={student}
         isNew={false}

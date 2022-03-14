@@ -3,10 +3,13 @@ import {StudentForm} from "../../../src/components";
 
 const StudentNew = () => {
   return (
-    <>
-      <h1>Create a student</h1>
-      <StudentForm isNew={true}/>
-    </>
+    <div>
+      <h1>Create Student Form</h1>
+      <StudentForm 
+        isNew={true}
+        student = {{soft_skills:[], tech_skills:[], work_experience:[]}}
+        />
+    </div>
   );
 }
 

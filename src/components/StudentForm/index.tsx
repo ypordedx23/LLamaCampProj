@@ -10,7 +10,8 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 import MessageModal from "../MesaggeModal";
-import Box from '@mui/material/Box';
+import { useHistory } from "react-router-dom";
+import  {Router, Redirect } from 'react-router-dom'
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -19,6 +20,8 @@ const Item = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1),
   color: theme.palette.text.secondary,
 }));
+
+
 
 type StudentFormProp = {
   student?: any,
@@ -35,6 +38,7 @@ const StudentForm = (props: StudentFormProp) => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  
   useEffect(() => {
     setStudent(props.student);
     setLoading(false);
@@ -73,6 +77,7 @@ const StudentForm = (props: StudentFormProp) => {
       setMessage("");
       clearInterval(interval);
     }, 3000);
+    
   }
 
   const handleDeleteStudent = (event: any) => {
@@ -85,14 +90,15 @@ const StudentForm = (props: StudentFormProp) => {
       .put(`${Config.studentsApi}/${student.id}`, student)
       .then((response) => {
         handleSetMessage("User deleted!");
-        console.log("Delete user response", response.data);
       })
       .catch((error) => {
         console.error("There was an error updating the student", error);
       })
       .finally(() => {
         setLoading(false);
+        window.location.href = "/";
       });
+    
   }
 
   const handleSaveStudent = (event: any) => {
